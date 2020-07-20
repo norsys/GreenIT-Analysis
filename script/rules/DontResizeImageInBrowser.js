@@ -3,7 +3,9 @@ rulesManager.registerRule({
     id: "DontResizeImageInBrowser",
     comment: "",
     detailComment: "",
-    imagesResizedInBrowserNumber: 0,
+    values : {
+        imagesResizedInBrowserNumber: 0
+    },
     imgAnalysed: new Map(),
 
     // need to get a new map , otherwise it's share between instance 
@@ -30,20 +32,12 @@ rulesManager.registerRule({
             if (!this.imgAnalysed.has(entry.src) && this.isRevelant(entry)) { // Do not count two times the same picture
                 this.detailComment += chrome.i18n.getMessage("rule_DontResizeImageInBrowser_DetailComment",[entry.src,`${entry.naturalWidth}x${entry.naturalHeight}`,`${entry.clientWidth}x${entry.clientHeight}`]) + '<br>';
                 this.imgAnalysed.set(entry.src);
-                this.imagesResizedInBrowserNumber += 1;
+                this.values.imagesResizedInBrowserNumber += 1;
             }
         });
-        if (this.imagesResizedInBrowserNumber > 0) this.complianceLevel = 'C';
-        this.comment = chrome.i18n.getMessage("rule_DontResizeImageInBrowser_Comment", String(this.imagesResizedInBrowserNumber));
+        if (this.values.imagesResizedInBrowserNumber > 0) this.complianceLevel = 'C';
+        this.comment = chrome.i18n.getMessage("rule_DontResizeImageInBrowser_Comment", String(this.values.imagesResizedInBrowserNumber));
         
     },
-
-    addMeasuresForExport: function(measures){
-        measures.analysysDetails.dontResizeImageInBrowser = {};
-        measures.analysysDetails.dontResizeImageInBrowser.imagesResizedInBrowserNumber = this.imagesResizedInBrowserNumber;
-        measures.analysysDetails.dontResizeImageInBrowser.comment = this.comment;
-        measures.analysysDetails.dontResizeImageInBrowser.detailComment = this.detailComment;
-        measures.analysysDetails.dontResizeImageInBrowser.complianceLevel = this.complianceLevel;
-    }
     
 }, "frameMeasuresReceived");

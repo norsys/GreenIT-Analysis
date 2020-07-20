@@ -81,8 +81,8 @@ function RulesManager() {
       measures.analysysDetails[rule].detailComment = myRule.detailComment;
       measures.analysysDetails[rule].complianceLevel = myRule.complianceLevel;
       
-      if(myRule.addMeasuresForExport){
-        rules.get(rule).addMeasuresForExport(measures);
+      if(myRule.values){
+        measures.analysysDetails[rule].values = myRule.values;
       }
     }
 
