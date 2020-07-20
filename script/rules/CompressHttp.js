@@ -3,21 +3,23 @@ rulesManager.registerRule({
     id: "CompressHttp",
     comment: "",
     detailComment: "",
+    values : {
+        compressibleResourcesSize : 0,
+        compressibleResourcesCompressedSize : 0
+    },
 
     check: function (measures) {
-        let compressibleResourcesSize = 0;
-        let compressibleResourcesCompressedSize = 0;
         if (measures.entries.length) measures.entries.forEach(entry => {
             if (isCompressibleResource(entry)) {
-                compressibleResourcesSize += entry.response.content.size;
+                this.values.compressibleResourcesSize += entry.response.content.size;
                 if (isResourceCompressed(entry)) {
-                    compressibleResourcesCompressedSize += entry.response.content.size;
+                    this.values.compressibleResourcesCompressedSize += entry.response.content.size;
                 }
                 else this.detailComment += chrome.i18n.getMessage("rule_CompressHttp_DetailComment",`${entry.request.url} ${Math.round(entry.response.content.size / 100) / 10}`) + '<br>';
             }
         });
-        if (compressibleResourcesSize > 0) {
-            const compressRatio = compressibleResourcesCompressedSize / compressibleResourcesSize * 100;
+        if (this.values.compressibleResourcesSize > 0) {
+            const compressRatio = this.values.compressibleResourcesCompressedSize / this.values.compressibleResourcesSize * 100;
             if (compressRatio < 95) {
                 if (compressRatio < 90) this.complianceLevel = 'C'
                 else this.complianceLevel = 'B';

@@ -3,18 +3,20 @@ rulesManager.registerRule({
     id: "HttpError",
     comment: "",
     detailComment: "",
+    values : {
+      errorNumber : 0
+    },
   
     check: function (measures) {
-      let errorNumber = 0;
       if (measures.entries.length) measures.entries.forEach(entry => {
         if (entry.response) {
           if (entry.response.status >=400  ) {
             this.detailComment += entry.response.status + " " + entry.request.url + "<br>";
-            errorNumber++;
+            this.values.errorNumber++;
           }
         }
       });
-      if (errorNumber > 0) this.complianceLevel = 'C';
-      this.comment = chrome.i18n.getMessage("rule_HttpError_Comment", String(errorNumber));
+      if (this.values.errorNumber > 0) this.complianceLevel = 'C';
+      this.comment = chrome.i18n.getMessage("rule_HttpError_Comment", String(this.values.errorNumber));
     }
   }, "harReceived");

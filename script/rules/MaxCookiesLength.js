@@ -3,9 +3,11 @@ rulesManager.registerRule({
     id: "MaxCookiesLength",
     comment: chrome.i18n.getMessage("rule_MaxCookiesLength_DefaultComment"),
     detailComment: "",
+    values : {
+        maxCookiesLength : 0
+    },
 
     check: function (measures) {
-        let maxCookiesLength = 0;
         let domains = new Map();
         if (measures.entries.length) measures.entries.forEach(entry => {
             const cookiesLength = getCookiesLength(entry);
@@ -15,16 +17,16 @@ rulesManager.registerRule({
                     if (domains.get(domain) < cookiesLength) domains.set(domain, cookiesLength);
                 }
                 else domains.set(domain, cookiesLength);
-                if (cookiesLength > maxCookiesLength) maxCookiesLength = cookiesLength;
+                if (cookiesLength > this.values.maxCookiesLength) this.values.maxCookiesLength = cookiesLength;
             }
         });
         domains.forEach((value, key) => {
             this.detailComment += chrome.i18n.getMessage("rule_MaxCookiesLength_DetailComment",[value,key]) + '<br>' ;
         });
-        if (maxCookiesLength !== 0) {
-            this.comment = chrome.i18n.getMessage("rule_MaxCookiesLength_Comment", String(maxCookiesLength));
-            if (maxCookiesLength > 512) this.complianceLevel = 'B';
-            if (maxCookiesLength > 1024) this.complianceLevel = 'C';
+        if (this.values.maxCookiesLength !== 0) {
+            this.comment = chrome.i18n.getMessage("rule_MaxCookiesLength_Comment", String(this.values.maxCookiesLength));
+            if (this.values.maxCookiesLength > 512) this.complianceLevel = 'B';
+            if (this.values.maxCookiesLength > 1024) this.complianceLevel = 'C';
         }
     }
 }, "harReceived");

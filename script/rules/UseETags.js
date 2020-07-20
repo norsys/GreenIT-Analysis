@@ -3,23 +3,23 @@ rulesManager.registerRule({
     id: "UseETags",
     comment: "",
     detailComment: "",
+    values : {
+      staticResourcesWithETagsSize : 0,
+      staticResourcesSize : 0
+    },
   
     check: function (measures) {
-  
-      let staticResourcesSize = 0;
-      let staticResourcesWithETagsSize = 0;
-  
       if (measures.entries.length) measures.entries.forEach(entry => {
         if (isStaticRessource(entry)) {
-          staticResourcesSize += entry.response.content.size;
+          this.values.staticResourcesSize += entry.response.content.size;
           if (isRessourceUsingETag(entry)) {
-            staticResourcesWithETagsSize += entry.response.content.size;
+            this.values.staticResourcesWithETagsSize += entry.response.content.size;
           }
           else this.detailComment +=chrome.i18n.getMessage("rule_UseETags_DetailComment",`${entry.request.url} ${Math.round(entry.response.content.size / 100) / 10}`) + '<br>';
         }
       });
-      if (staticResourcesSize > 0) {
-        const eTagsRatio = staticResourcesWithETagsSize / staticResourcesSize * 100;
+      if (this.values.staticResourcesSize > 0) {
+        let eTagsRatio = this.values.staticResourcesWithETagsSize / this.values.staticResourcesSize * 100;
         if (eTagsRatio < 95) {
           if (eTagsRatio < 90) this.complianceLevel = 'C'
           else this.complianceLevel = 'B';

@@ -3,11 +3,15 @@ rulesManager.registerRule({
     id: "PrintStyleSheet",
     comment: chrome.i18n.getMessage("rule_PrintStyleSheet_DefaultComment"),
     detailComment: "",
+    values :{
+      printStyleSheetsNumber : 0
+    },
   
     check: function (measures) {
-      if (measures.printStyleSheetsNumber > 0) {
+      this.values.printStyleSheetsNumber = measures.printStyleSheetsNumber;
+      if (this.values.printStyleSheetsNumber > 0) {
         this.complianceLevel = 'A';
-        this.comment = chrome.i18n.getMessage("rule_PrintStyleSheet_Comment", String(measures.printStyleSheetsNumber));
+        this.comment = chrome.i18n.getMessage("rule_PrintStyleSheet_Comment", String(this.values.printStyleSheetsNumber));
       }
     }
   }, "frameMeasuresReceived");
