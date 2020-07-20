@@ -65,12 +65,25 @@ function RulesManager() {
       if (eventListener) {
         eventListener.forEach(ruleID => {
           this.checkRule(ruleID, measures, resource);
+          this.manageExport(ruleID, measures);
         });
       }
     }
 
     this.checkRule = function (rule, measures, resource) {
       rules.get(rule).check(measures, resource);
+    }
+
+    this.manageExport = function (rule, measures) {
+      let myRule = rules.get(rule); 
+      measures.analysysDetails[rule] = {};
+      measures.analysysDetails[rule].comment = myRule.comment;
+      measures.analysysDetails[rule].detailComment = myRule.detailComment;
+      measures.analysysDetails[rule].complianceLevel = myRule.complianceLevel;
+      
+      if(myRule.addMeasuresForExport){
+        rules.get(rule).addMeasuresForExport(measures);
+      }
     }
 
     this.getRule = function (rule) {

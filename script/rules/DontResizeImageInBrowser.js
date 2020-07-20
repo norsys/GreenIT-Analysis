@@ -35,5 +35,15 @@ rulesManager.registerRule({
         });
         if (this.imagesResizedInBrowserNumber > 0) this.complianceLevel = 'C';
         this.comment = chrome.i18n.getMessage("rule_DontResizeImageInBrowser_Comment", String(this.imagesResizedInBrowserNumber));
+        
+    },
+
+    addMeasuresForExport: function(measures){
+        measures.analysysDetails.dontResizeImageInBrowser = {};
+        measures.analysysDetails.dontResizeImageInBrowser.imagesResizedInBrowserNumber = this.imagesResizedInBrowserNumber;
+        measures.analysysDetails.dontResizeImageInBrowser.comment = this.comment;
+        measures.analysysDetails.dontResizeImageInBrowser.detailComment = this.detailComment;
+        measures.analysysDetails.dontResizeImageInBrowser.complianceLevel = this.complianceLevel;
     }
+    
 }, "frameMeasuresReceived");

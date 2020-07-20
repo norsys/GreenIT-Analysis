@@ -106,7 +106,8 @@ function MeasuresAcquisition(rules) {
       "inlineStyleSheetsNumber": 0,
       "emptySrcTagNumber": 0,
       "inlineJsScriptsNumber": 0,
-      "imagesResizedInBrowser": []
+      "imagesResizedInBrowser": [],
+      "analysysDetails": {}
     };
   }
 
@@ -246,7 +247,8 @@ function storeAnalysisInHistory() {
     greenhouseGasesEmission: measures.greenhouseGasesEmission,
     waterConsumption: measures.waterConsumption,
     ecoIndex: measures.ecoIndex,
-    grade: measures.grade
+    grade: measures.grade,
+    analysysDetails: measures.analysysDetails
   };
 
   if (string_analyse_history) {

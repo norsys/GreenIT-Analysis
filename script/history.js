@@ -118,7 +118,8 @@ function create_csv() {
 			";" + analyse.greenhouseGasesEmission +
 			";" + analyse.waterConsumption +
 			";" + analyse.ecoIndex +
-			";" + analyse.grade + "\n";
+			";" + analyse.grade +
+			";" + JSON.stringify(analyse.analysysDetails) + "\n";
 	})
 	return csv;
 }
