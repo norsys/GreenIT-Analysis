@@ -1,4 +1,7 @@
-rulesManager.registerRule({
+rulesManager.registerRule(createMinifiedJsRule(), "resourceContentReceived");
+
+function createMinifiedJsRule() {
+    return{
     complianceLevel: 'A',
     id: "MinifiedJs",
     comment: chrome.i18n.getMessage("rule_MinifiedJs_DefaultComment"),
@@ -20,4 +23,4 @@ rulesManager.registerRule({
             this.comment = chrome.i18n.getMessage("rule_MinifiedJs_Comment", String(Math.round(percentMinifiedJs * 10) / 10));
         }
     }
-}, "resourceContentReceived");
+}}
