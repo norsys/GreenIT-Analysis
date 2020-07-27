@@ -1,4 +1,4 @@
-describe("Rules => CompressHttp.js", function () {
+describe("Rules => DomainsNumber.js", function () {
 
     let rule;
     beforeEach(function () {
