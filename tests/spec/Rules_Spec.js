@@ -6,29 +6,7 @@ describe("rules.js", function () {
     beforeEach(function () {
     });
 
-    it(" 0 inline js, it should return A", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { inlineJsScriptsNumber: 0 };
-      let rule = rulesChecker.getRule("ExternalizeJs");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('A');
-    });
 
-    it(" 1 inline js, it should return A", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { inlineJsScriptsNumber: 1 };
-      let rule = rulesChecker.getRule("ExternalizeJs");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('A');
-    });
-
-    it(" 2 inline js, it should return C", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { inlineJsScriptsNumber: 2 };
-      let rule = rulesChecker.getRule("ExternalizeJs");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('C');
-    });
 
     afterEach(function () {
     });
