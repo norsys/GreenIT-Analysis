@@ -1,18 +1,6 @@
 
 describe("rules.js", function () {
 
-  describe("#OptimizeSvgRule", function () {
-
-    beforeEach(function () {
-
-    });
-
-
-
-    afterEach(function () {
-    });
-
-  });
 
   describe("#PluginsRule", function () {
 
@@ -20,30 +8,6 @@ describe("rules.js", function () {
 
     });
 
-    it(" 0 plugin, it should return A", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { pluginsNumber: 0 };
-      let rule = rulesChecker.getRule("Plugins");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('A');
-    });
-
-
-    it(" 1 plugin, it should return C", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { pluginsNumber: 1 };
-      let rule = rulesChecker.getRule("Plugins");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('C');
-    });
-
-    it(" 5 plugins, it should return C", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { pluginsNumber: 5 };
-      let rule = rulesChecker.getRule("Plugins");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('C');
-    });
 
     afterEach(function () {
     });
