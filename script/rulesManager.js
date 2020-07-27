@@ -80,10 +80,7 @@ function RulesManager() {
       measures.analysysDetails[rule].comment = myRule.comment;
       measures.analysysDetails[rule].detailComment = myRule.detailComment;
       measures.analysysDetails[rule].complianceLevel = myRule.complianceLevel;
-      
-      if(myRule.values){
-        measures.analysysDetails[rule].values = myRule.values;
-      }
+      measures.analysysDetails[rule].values = myRule.values;
     }
 
     this.getRule = function (rule) {
