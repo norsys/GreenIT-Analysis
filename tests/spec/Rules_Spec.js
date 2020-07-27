@@ -1,68 +1,6 @@
 
 describe("rules.js", function () {
 
-  describe("#ImageDownloadedNotDisplayedRule", function () {
-
-    beforeEach(function () {
-
-    });
-
-
-    afterEach(function () {
-    });
-  });
-
-  describe("#EmptySrcTagRule", function () {
-
-    beforeEach(function () {
-    });
-
-    it(" no empty src tag, it should return A", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { emptySrcTagNumber: 0 };
-      let rule = rulesChecker.getRule("EmptySrcTag");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('A');
-    });
-
-    it(" 1 empty src tag , it should return C", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { emptySrcTagNumber: 1 };
-      let rule = rulesChecker.getRule("EmptySrcTag");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('C');
-    });
-
-    afterEach(function () {
-    });
-  });
-
-  describe("#ExternalizeCssRule", function () {
-
-    beforeEach(function () {
-
-    });
-
-    it(" 0 inline css , it should return A", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { inlineStyleSheetsNumber: 0 };
-      let rule = rulesChecker.getRule("ExternalizeCss");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('A');
-    });
-
-    it(" 1 inline css, it should return C", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { inlineStyleSheetsNumber: 1 };
-      let rule = rulesChecker.getRule("ExternalizeCss");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('C');
-    });
-
-    afterEach(function () {
-    });
-  });
-
   describe("#ExternalizeJsRule", function () {
 
     beforeEach(function () {
