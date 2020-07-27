@@ -1,59 +1,6 @@
 
 describe("rules.js", function () {
 
-  describe("#ExternalizeJsRule", function () {
-
-    beforeEach(function () {
-    });
-
-
-
-    afterEach(function () {
-    });
-  });
-
-  describe("#HttpRequestsRule", function () {
-
-    beforeEach(function () {
-    });
-
-    it(" 5 http requests, it should return A", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { nbRequest: 5, entries: [] };
-      let rule = rulesChecker.getRule("HttpRequests");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('A');
-    });
-
-    it(" 26 http requests, it should return A", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { nbRequest: 26, entries: [] };
-      let rule = rulesChecker.getRule("HttpRequests");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('A');
-    });
-
-    it(" 27 http requests, it should return B", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { nbRequest: 27, entries: [] };
-      let rule = rulesChecker.getRule("HttpRequests");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('B');
-    });
-
-    it(" 41 http requests, it should return C", function () {
-      let rulesChecker = rulesManager.getNewRulesChecker();
-      const measures = { nbRequest: 41, entries: [] };
-      let rule = rulesChecker.getRule("HttpRequests");
-      rule.check(measures);
-      expect(rule.complianceLevel).toEqual('C');
-    });
-
-
-    afterEach(function () {
-    });
-  });
-
   describe("#JsValidateRule", function () {
 
     beforeEach(function () {
