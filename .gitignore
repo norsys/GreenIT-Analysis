@@ -2,4 +2,7 @@
 .vscode
 *.iml
 .idea/
+
+## CLI files to ignore
 node_modules
+cli/crx
