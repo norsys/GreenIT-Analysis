@@ -1,71 +1,74 @@
 import arg from 'arg';
 import inquirer from 'inquirer';
-import launchGreenITAnalysis from './checkEcoIndex';
+import Listr from 'listr';
+import {launchGreenITAnalysis, openBrowser} from './checkEcoIndex';
 
 function parseArgumentsIntoOptions(rawArgs) {
  const args = arg(
    {
        '--scenario': String,
-     '--git': Boolean,
-     '--yes': Boolean,
-     '--install': Boolean,
         '-s': '--scenario',
-     '-g': '--git',
-     '-y': '--yes',
-     '-i': '--install',
    },
    {
      argv: rawArgs.slice(2),
    }
  );
  return {
-     scenario: args['--scenario'],
-   skipPrompts: args['--yes'] || false,
-   git: args['--git'] || false,
-   url: args._[0],
-   runInstall: args['--install'] || false,
+     scenario: args['--scenario']
  };
 }
 async function promptForMissingOptions(options) {
-    const defaultTemplate = 'JavaScript';
-    if (options.skipPrompts) {
-      return {
-        ...options,
-        template: options.template || defaultTemplate,
-      };
-    }
-   
-    const questions = [];
-    if (!options.template) {
-      questions.push({
-        type: 'list',
-        name: 'url',
-        message: 'Please choose which project template to use',
-        choices: ['JavaScript', 'TypeScript'],
-        default: defaultTemplate,
-      });
-    }
-   
-    if (!options.git) {
-      questions.push({
-        type: 'confirm',
-        name: 'git',
-        message: 'Initialize a git repository?',
-        default: false,
-      });
-    }
-   
-    const answers = await inquirer.prompt(questions);
-    return {
-      ...options,
-      template: options.template || answers.template,
-      git: options.git || answers.git,
-    };
-   }
+  
+}
 
 export async function cli(args) {
- let options = parseArgumentsIntoOptions(args);
- //options = await promptForMissingOptions(options);
- const scenario = require(options.scenario)
- launchGreenITAnalysis(scenario)
+
+  const tasks = new Listr([
+      {
+          title: 'Parsing Arguments',
+          task: (ctx, task) => {
+            ctx.options = parseArgumentsIntoOptions(args);
+          }
+      },
+      {
+          title: 'Creating scenario',
+          skip: ctx => ctx.options.scenario != undefined && 'Scenario passed as cli argument',
+          task: (ctx) => {
+            ctx.scenario = promptForMissingOptions(ctx.options);
+            throw new Error('not yet implemented');
+          }
+      },
+      {
+          title: 'Reading scenario',
+          skip: ctx => ctx.scenario && 'Scenario created with cli',
+          task: (ctx) => {
+            ctx.scenario = require(ctx.options.scenario);
+          }
+      },
+      {
+          title: 'Opening Browser',
+          task: async (ctx) => {
+            ctx.browser = await openBrowser()
+          }
+      },
+      {
+          title: 'Analysing scenario',
+          task: async (ctx, task) =>  await launchGreenITAnalysis(ctx.scenario, ctx.browser, task)
+      },
+      {
+          title: 'Closing browser',
+          task: async (ctx) =>  await ctx.browser.close()
+      }
+  ], {exitOnError:true});
+  
+  tasks.run({
+      args
+  }).then(ctx => {
+      ctx.browser.close();
+  }).catch(err => {
+    console.error(err);
+    if(err.context.browser) {
+      err.context.browser.close();
+    }
+  });
 }

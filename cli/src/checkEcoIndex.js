@@ -5,12 +5,10 @@ const fse = require('fs-extra');
 const path = require('path');
 const { makeBadge } = require('badge-maker');
 
-export default async function launchGreenITAnalysis(scenario) {
-
-
+export async function openBrowser() {
   const extensionPath = './crx/'; 
 
-  const browser = await puppeteer.launch({
+  return await puppeteer.launch({
       headless: false, // extension are allowed only in the head-full mode
       args: [
           `--disable-extensions-except=${extensionPath}`,
@@ -18,108 +16,94 @@ export default async function launchGreenITAnalysis(scenario) {
           '--auto-open-devtools-for-tabs'
       ]
   });
-
-let page = (await browser.pages())[0];
-      await page.setViewport({width: 1200, height: 900});
-      await page.setCacheEnabled(false);
-
-      let isFirstPage = true;
-      let isLogguedIn = false;
-      let greenItPlugInPage;
-      for (const endpoint of scenario.endpoints) {
-
-          console.log('Analysing : '+endpoint.name);
-          if(endpoint.hasToBeLoggedIn && !isLogguedIn){
-              console.log('Login in ...');
-              await page.goto(scenario.loginUrl, {waitUntil: 'networkidle2'});
-              await page.type(scenario.userDivSelector, scenario.user);
-              await page.type(scenario.passwordDivSelector, scenario.password);
-              await page.waitForSelector(scenario.loginBtnSelector);
-              await page.click(scenario.loginBtnSelector);
-
-              isLogguedIn =true;
-              console.log('Logged ...');
-          }
-          await page.goto(endpoint.url, {waitUntil: 'networkidle2'});
-
-          if(isFirstPage) {
-              greenItPlugInPage = await getGreenItPanel(browser);
-              isFirstPage = false;
-          }
-          await runGreenItForURL(endpoint.name, greenItPlugInPage);
-          console.log('End Analyse');
-      }
-
-      browser.close();
-
 }
 
-async function getGreenItPanel(browser) {
-    console.log('get Green It Panel');
-    let targets = await browser.targets();
-    const devtoolsTarget = targets.filter((t) => {
-        return t.type() === 'other' && t.url().startsWith('devtools://');
-    })[0];
+export async function launchGreenITAnalysis(scenario, browser, task) {
+  let page = (await browser.pages())[0];
+  await page.setViewport({width: 1200, height: 900});
+  await page.setCacheEnabled(false);
 
-    if (devtoolsTarget) {
-        console.log(`[1] Found dev tool target : ${devtoolsTarget.url()}`);
-    } else {
-        console.error('[1] Fail to find dev tool target');
+  let isFirstPage = true;
+  let isLogguedIn = false;
+  let greenItPlugInPage;
+  for (const endpoint of scenario.endpoints) {
+
+    if(endpoint.hasToBeLoggedIn && !isLogguedIn){
+        task.output = 'Login in ...';
+        await page.goto(scenario.loginUrl, {waitUntil: 'networkidle2'});
+        await page.type(scenario.userDivSelector, scenario.user);
+        await page.type(scenario.passwordDivSelector, scenario.password);
+        await page.waitForSelector(scenario.loginBtnSelector);
+        await page.click(scenario.loginBtnSelector);
+
+        isLogguedIn =true;
+        task.output = 'Logged ...';
     }
 
+    task.output = 'Analysing : '+endpoint.name;
+    await page.goto(endpoint.url, {waitUntil: 'networkidle2'});
 
-    // Hack to get a page pointing to the devtools
-    devtoolsTarget._targetInfo.type = 'page';
-
-    var focusNextPanelKey = 'Control'
-    if (os.platform().indexOf("darwin")!=-1) {
-         focusNextPanelKey = 'MetaLeft'
+    if(isFirstPage) {
+        greenItPlugInPage = await getGreenItPanel(browser, task);
+        isFirstPage = false;
     }
+    await runGreenItForURL(endpoint.name, greenItPlugInPage);
+    task.output = 'End Analyse';
+  }
+}
 
+async function getGreenItPanel(browser, task) {
+  let targets = await browser.targets();
+  const devtoolsTarget = targets.filter((t) => {
+      return t.type() === 'other' && t.url().startsWith('devtools://');
+  })[0];
 
-    const devtoolsPage = await devtoolsTarget.page();
-    await devtoolsPage.keyboard.down(focusNextPanelKey);
-    await devtoolsPage.keyboard.press('[');
-    await devtoolsPage.keyboard.up(focusNextPanelKey);
+  if (!devtoolsTarget) {
+    throw new Error('Fail to find dev tool target');
+  }
 
-    let extensionPanelTarget = targets.filter((t) => {
-        return t.type() === 'other' &&
-            t.url().startsWith('chrome-extension://') &&
-            t.url().endsWith('/GreenIT-Analysis.html');
-    })[0];
-    if (extensionPanelTarget) {
-        console.error(`[2] Found GreenIT-Analysis Panel Target : ${extensionPanelTarget.url()}`);
-    } else {
-        console.log('[2] Fail to find GreenIt-Analysis Panel Target');
-    }
+  // Hack to get a page pointing to the devtools
+  devtoolsTarget._targetInfo.type = 'page';
 
+  var focusNextPanelKey = 'Control'
+  if (os.platform().indexOf("darwin")!=-1) {
+        focusNextPanelKey = 'MetaLeft'
+  }
 
-    // Hack to get a page pointing to the devtools extension panel.
-    extensionPanelTarget._targetInfo.type = 'page';
+  const devtoolsPage = await devtoolsTarget.page();
+  await devtoolsPage.keyboard.down(focusNextPanelKey);
+  await devtoolsPage.keyboard.press('[');
+  await devtoolsPage.keyboard.up(focusNextPanelKey);
 
-    // Most APIs on `Page` fail as `mainFrame()` is `undefined` (frame has a `parentId`).
-    console.log('[3] Chargement du plugin GreenIt-Analysis');
-    await extensionPanelTarget.page();
+  let extensionPanelTarget = targets.filter((t) => {
+      return t.type() === 'other' &&
+          t.url().startsWith('chrome-extension://') &&
+          t.url().endsWith('/GreenIT-Analysis.html');
+  })[0];
+  if (!extensionPanelTarget) {
+    throw new Error('Fail to find GreenIt-Analysis Panel Target');
+  }
 
-    // Getting the first frame and working with that instead provides something usable.
-    //const extensionPanelFrame = extensionPanelPage.frames()[0];
-    // And now we can finally interact with our extension panel frame!
-    targets = await browser.targets();
-    extensionPanelTarget = targets.filter((t) => {
-        return t.type() === 'other' &&
-            t.url().startsWith('chrome-extension://') &&
-            t.url().endsWith('/GreenPanel.html');
-    })[0];
-    if (extensionPanelTarget) {
-      console.error(`[4] Found GreenIT-Analysis Panel Target : ${extensionPanelTarget.url()}`);
-    } else {
-        console.log('[4] Fail to find GreenIt-Analysis Panel Target');
-    }
+  // Hack to get a page pointing to the devtools extension panel.
+  extensionPanelTarget._targetInfo.type = 'page';
 
-    extensionPanelTarget._targetInfo.type = 'page';
+  // Most APIs on `Page` fail as `mainFrame()` is `undefined` (frame has a `parentId`).
+  await extensionPanelTarget.page();
 
-    // Most APIs on `Page` fail as `mainFrame()` is `undefined` (frame has a `parentId`).
-    return await extensionPanelTarget.page();
+  // And now we can finally interact with our extension panel frame!
+  targets = await browser.targets();
+  extensionPanelTarget = targets.filter((t) => {
+      return t.type() === 'other' &&
+          t.url().startsWith('chrome-extension://') &&
+          t.url().endsWith('/GreenPanel.html');
+  })[0];
+  if (!extensionPanelTarget) {
+    throw new Error('Fail to find GreenIt-Analysis Panel Target');
+  }
+
+  extensionPanelTarget._targetInfo.type = 'page';
+  // Most APIs on `Page` fail as `mainFrame()` is `undefined` (frame has a `parentId`).
+  return await extensionPanelTarget.page();
 }
 
 async function runGreenItForURL(reportName, greenItPlugInPage) {
@@ -143,7 +127,7 @@ async function runGreenItForURL(reportName, greenItPlugInPage) {
     const reportNameForFile = reportName.replace(/\s/g, '');
     let errorLog = (err) => {
         if (err) {
-            console.error(err);
+          throw new Error(err);
         }
     }
    
