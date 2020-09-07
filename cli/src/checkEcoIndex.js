@@ -7,7 +7,7 @@ const { makeBadge } = require('badge-maker');
 export default async function launchGreenITAnalysis(scenario) {
 
 
-  const extensionPath = '../../GreenIT-Analysis'; // For instance, 'dist'
+  const extensionPath = './crx/'; 
 
   const browser = await puppeteer.launch({
       headless: false, // extension are allowed only in the head-full mode
