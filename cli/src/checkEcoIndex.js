@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const os = require('os');
 const fse = require('fs-extra');
 const path = require('path');
 const { makeBadge } = require('badge-maker');
@@ -54,31 +55,51 @@ let page = (await browser.pages())[0];
 }
 
 async function getGreenItPanel(browser) {
+    console.log('get Green It Panel');
     let targets = await browser.targets();
     const devtoolsTarget = targets.filter((t) => {
         return t.type() === 'other' && t.url().startsWith('devtools://');
     })[0];
 
+    if (devtoolsTarget) {
+        console.log(`[1] Found dev tool target : ${devtoolsTarget.url()}`);
+    } else {
+        console.error('[1] Fail to find dev tool target');
+    }
+
+
     // Hack to get a page pointing to the devtools
     devtoolsTarget._targetInfo.type = 'page';
 
-    const devtoolsPage = await devtoolsTarget.page();
+    var focusNextPanelKey = 'Control'
+    if (os.platform().indexOf("darwin")!=-1) {
+         focusNextPanelKey = 'MetaLeft'
+    }
 
-    await devtoolsPage.keyboard.down('MetaLeft');
+
+    const devtoolsPage = await devtoolsTarget.page();
+    await devtoolsPage.keyboard.down(focusNextPanelKey);
     await devtoolsPage.keyboard.press('[');
-    await devtoolsPage.keyboard.up('MetaLeft');
+    await devtoolsPage.keyboard.up(focusNextPanelKey);
 
     let extensionPanelTarget = targets.filter((t) => {
         return t.type() === 'other' &&
             t.url().startsWith('chrome-extension://') &&
             t.url().endsWith('/GreenIT-Analysis.html');
     })[0];
+    if (extensionPanelTarget) {
+        console.error(`[2] Found GreenIT-Analysis Panel Target : ${extensionPanelTarget.url()}`);
+    } else {
+        console.log('[2] Fail to find GreenIt-Analysis Panel Target');
+    }
+
 
     // Hack to get a page pointing to the devtools extension panel.
     extensionPanelTarget._targetInfo.type = 'page';
 
     // Most APIs on `Page` fail as `mainFrame()` is `undefined` (frame has a `parentId`).
-    const extensionPanelPage = await extensionPanelTarget.page();
+    console.log('[3] Chargement du plugin GreenIt-Analysis');
+    await extensionPanelTarget.page();
 
     // Getting the first frame and working with that instead provides something usable.
     //const extensionPanelFrame = extensionPanelPage.frames()[0];
@@ -89,6 +110,11 @@ async function getGreenItPanel(browser) {
             t.url().startsWith('chrome-extension://') &&
             t.url().endsWith('/GreenPanel.html');
     })[0];
+    if (extensionPanelTarget) {
+      console.error(`[4] Found GreenIT-Analysis Panel Target : ${extensionPanelTarget.url()}`);
+    } else {
+        console.log('[4] Fail to find GreenIt-Analysis Panel Target');
+    }
 
     extensionPanelTarget._targetInfo.type = 'page';
 
