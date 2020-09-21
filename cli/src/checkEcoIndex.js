@@ -134,6 +134,8 @@ async function runGreenItForURL(reportName, greenItPlugInPage) {
     });
    
     const html = await greenItPlugInFrame.content();
+    const svg = createBadge(measure);
+    
     let errorLog = (err) => {
         if (err) {
           throw new Error(err);
@@ -144,8 +146,6 @@ async function runGreenItForURL(reportName, greenItPlugInPage) {
         fs.mkdirSync(dir,{ recursive: true });
     }
     fs.writeFile(dir+'/ecoIndex.html', html, errorLog);
-    
-    const svg = createBadge(measure);
     fs.writeFile(dir+'/ecoIndex.svg', svg, errorLog);
     fs.writeFile(dir+'/ecoIndex.json', JSON.stringify(measure), errorLog);
     
