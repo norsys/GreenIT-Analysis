@@ -44,7 +44,7 @@ export async function launchGreenITAnalysis(scenario, browser, task) {
         await page.type(scenario.passwordDivSelector, scenario.password);
         await page.waitForSelector(scenario.loginBtnSelector);
         await page.click(scenario.loginBtnSelector);
-        await page.waitForSelector(scenario.loginBtnSelector, {visible: false, timeout: 2000 })
+        await page.waitForNavigation();
 
         isLogguedIn =true;
         task.output = 'Logged ...';
@@ -57,7 +57,7 @@ export async function launchGreenITAnalysis(scenario, browser, task) {
         greenItPlugInPage = await getGreenItPanel(browser, task);
         isFirstPage = false;
     }
-    await runGreenItForURL(endpoint.name, greenItPlugInPage);
+    await runGreenItForURL(endpoint.name, greenItPlugInPage, scenario.resultPath);
     task.output = 'End Analyse';
   }
 }
@@ -116,8 +116,8 @@ async function getGreenItPanel(browser, task) {
   return await extensionPanelTarget.page();
 }
 
-async function runGreenItForURL(reportName, greenItPlugInPage) {
-    var dir = './generated/greenIt/'+reportName;
+async function runGreenItForURL(reportName, greenItPlugInPage, resultPath) {
+    var dir = resultPath+'/'+reportName;
     greenItPlugInPage.on('response', async (response) => {
         const url = new URL(response.url());
         let filePath = path.resolve(`${dir}${url.pathname}`);
@@ -135,7 +135,7 @@ async function runGreenItForURL(reportName, greenItPlugInPage) {
    
     const html = await greenItPlugInFrame.content();
     const svg = createBadge(measure);
-    
+
     let errorLog = (err) => {
         if (err) {
           throw new Error(err);
