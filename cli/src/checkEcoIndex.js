@@ -148,6 +148,7 @@ async function runGreenItForURL(reportName, greenItPlugInPage) {
     
     const svg = createBadge(measure);
     fs.writeFile(dir+'/ecoIndex.svg', svg, errorLog);
+    fs.writeFile(dir+'/ecoIndex.json', JSON.stringify(measure), errorLog);
     
 }
 
