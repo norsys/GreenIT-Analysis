@@ -6,7 +6,14 @@ const path = require('path');
 const { makeBadge } = require('badge-maker');
 
 export async function openBrowser() {
-  const extensionPath = './crx/'; 
+  //const extensionPath = './crx/'; 
+  const fullPathName = new URL(import.meta.url).pathname;
+  const extensionPath = path.resolve(
+    fullPathName.substr(fullPathName.indexOf('/')),
+    '../../crx/'
+  );
+  console.log(`fullPathName : ${fullPathName}`);
+  console.log(`extensionPath : ${extensionPath}`);
 
   return await puppeteer.launch({
       headless: false, // extension are allowed only in the head-full mode
@@ -124,7 +131,6 @@ async function runGreenItForURL(reportName, greenItPlugInPage) {
     });
    
     const html = await greenItPlugInFrame.content();
-    const reportNameForFile = reportName.replace(/\s/g, '');
     let errorLog = (err) => {
         if (err) {
           throw new Error(err);

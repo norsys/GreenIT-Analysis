@@ -1,5 +1,4 @@
 import arg from 'arg';
-import inquirer from 'inquirer';
 import Listr from 'listr';
 import {launchGreenITAnalysis, openBrowser} from './checkEcoIndex';
 
