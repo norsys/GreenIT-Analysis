@@ -6,3 +6,4 @@
 ## CLI files to ignore
 node_modules
 cli/crx
+/cli/generated/*

@@ -7,7 +7,11 @@ const { makeBadge } = require('badge-maker');
 
 export async function openBrowser() {
   //const extensionPath = './crx/'; 
-  const fullPathName = new URL(import.meta.url).pathname;
+  let fullPathName = new URL(import.meta.url).pathname;
+  if (os.platform().indexOf("win32")!=-1) {
+    // delete first '/' in windows file system
+     fullPathName = fullPathName.substr(1, fullPathName.length)
+  }
   const extensionPath = path.resolve(
     fullPathName.substr(fullPathName.indexOf('/')),
     '../../crx/'
