@@ -5,8 +5,8 @@ const fse = require('fs-extra');
 const path = require('path');
 const { makeBadge } = require('badge-maker');
 
-export async function openBrowser() {
-  //const extensionPath = './crx/'; 
+export async function openBrowser(chromePath) {
+
   let fullPathName = new URL(import.meta.url).pathname;
   if (os.platform().indexOf("win32")!=-1) {
     // delete first '/' in windows file system
@@ -18,6 +18,7 @@ export async function openBrowser() {
   );
 
   return await puppeteer.launch({
+      executablePath: chromePath,
       headless: false, // extension are allowed only in the head-full mode
       args: [
           `--disable-extensions-except=${extensionPath}`,
@@ -43,7 +44,7 @@ export async function launchGreenITAnalysis(scenario, browser, task) {
         await page.type(scenario.userDivSelector, scenario.user);
         await page.type(scenario.passwordDivSelector, scenario.password);
         await page.waitForSelector(scenario.loginBtnSelector);
-        await page.click(scenario.loginBtnSelector);
+        page.click(scenario.loginBtnSelector);
         await page.waitForNavigation();
 
         isLogguedIn =true;
@@ -54,7 +55,7 @@ export async function launchGreenITAnalysis(scenario, browser, task) {
     await page.goto(endpoint.url, {waitUntil: 'networkidle2'});
 
     if(isFirstPage) {
-        greenItPlugInPage = await getGreenItPanel(browser, task);
+        greenItPlugInPage = await getGreenItPanel(browser);
         isFirstPage = false;
     }
     await runGreenItForURL(endpoint.name, greenItPlugInPage, scenario.resultPath);
@@ -62,7 +63,7 @@ export async function launchGreenITAnalysis(scenario, browser, task) {
   }
 }
 
-async function getGreenItPanel(browser, task) {
+async function getGreenItPanel(browser) {
   let targets = await browser.targets();
   const devtoolsTarget = targets.filter((t) => {
       return t.type() === 'other' && t.url().startsWith('devtools://');

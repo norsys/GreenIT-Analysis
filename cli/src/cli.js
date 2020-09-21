@@ -6,6 +6,8 @@ function parseArgumentsIntoOptions(rawArgs) {
  const args = arg(
    {
        '--scenario': String,
+       '--chromePath': String,
+        '-c': '--chromePath',
         '-s': '--scenario',
    },
    {
@@ -13,50 +15,63 @@ function parseArgumentsIntoOptions(rawArgs) {
    }
  );
  return {
-     scenario: args['--scenario']
+     scenario: args['--scenario'],
+     chromePath: args['--chromePath'],
  };
 }
 async function promptForMissingOptions(options) {
   
 }
 
+function checkMandatoryParameter(options){
+  if(options.chromePath == undefined){
+    throw new Error('Missing --chromePath mandatory option : path to the Chrome executable');
+  }
+}
+
 export async function cli(args) {
 
   const tasks = new Listr([
       {
-          title: 'Parsing Arguments',
-          task: (ctx, task) => {
-            ctx.options = parseArgumentsIntoOptions(args);
-          }
+        title: 'Parsing Arguments',
+        task: (ctx, task) => {
+          ctx.options = parseArgumentsIntoOptions(args);
+        }
       },
       {
-          title: 'Creating scenario',
-          skip: ctx => ctx.options.scenario != undefined && 'Scenario passed as cli argument',
-          task: (ctx) => {
-            ctx.scenario = promptForMissingOptions(ctx.options);
-            throw new Error('not yet implemented');
-          }
+        title: 'Creating scenario',
+        skip: ctx => ctx.options.scenario != undefined && 'Scenario passed as cli argument',
+        task: (ctx) => {
+          ctx.scenario = promptForMissingOptions(ctx.options);
+          throw new Error('not yet implemented');
+        }
       },
       {
-          title: 'Reading scenario',
-          skip: ctx => ctx.scenario && 'Scenario created with cli',
-          task: (ctx) => {
-            ctx.scenario = require(ctx.options.scenario);
-          }
+        title: 'Reading scenario',
+        skip: ctx => ctx.scenario && 'Scenario created with cli',
+        task: (ctx) => {
+          ctx.scenario = require(ctx.options.scenario);
+        }
       },
       {
-          title: 'Opening Browser',
-          task: async (ctx) => {
-            ctx.browser = await openBrowser()
-          }
+        title: 'Checking mandatory parameters',
+        task: (ctx) => {
+          checkMandatoryParameter(ctx.options);
+        }
       },
       {
-          title: 'Analysing scenario',
-          task: async (ctx, task) =>  await launchGreenITAnalysis(ctx.scenario, ctx.browser, task)
+        title: 'Opening Browser',
+        task: async (ctx) => {
+          ctx.browser = await openBrowser(ctx.options.chromePath)
+        }
       },
       {
-          title: 'Closing browser',
-          task: async (ctx) =>  await ctx.browser.close()
+        title: 'Analysing scenario',
+        task: async (ctx, task) =>  await launchGreenITAnalysis(ctx.scenario, ctx.browser, task)
+      },
+      {
+        title: 'Closing browser',
+        task: async (ctx) =>  await ctx.browser.close()
       }
   ], {exitOnError:true});
   
@@ -65,7 +80,6 @@ export async function cli(args) {
   }).then(ctx => {
       ctx.browser.close();
   }).catch(err => {
-    console.error(err);
     if(err.context.browser) {
       err.context.browser.close();
     }
