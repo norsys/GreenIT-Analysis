@@ -16,8 +16,6 @@ export async function openBrowser() {
     fullPathName.substr(fullPathName.indexOf('/')),
     '../../crx/'
   );
-  console.log(`fullPathName : ${fullPathName}`);
-  console.log(`extensionPath : ${extensionPath}`);
 
   return await puppeteer.launch({
       headless: false, // extension are allowed only in the head-full mode
@@ -46,6 +44,7 @@ export async function launchGreenITAnalysis(scenario, browser, task) {
         await page.type(scenario.passwordDivSelector, scenario.password);
         await page.waitForSelector(scenario.loginBtnSelector);
         await page.click(scenario.loginBtnSelector);
+        await page.waitForSelector(scenario.loginBtnSelector, {visible: false, timeout: 2000 })
 
         isLogguedIn =true;
         task.output = 'Logged ...';
