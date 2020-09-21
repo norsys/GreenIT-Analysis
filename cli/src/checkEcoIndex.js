@@ -117,7 +117,7 @@ async function getGreenItPanel(browser, task) {
 }
 
 async function runGreenItForURL(reportName, greenItPlugInPage, resultPath) {
-    var dir = resultPath+'/'+reportName;
+    var dir = `${resultPath}/${reportName}`;
     greenItPlugInPage.on('response', async (response) => {
         const url = new URL(response.url());
         let filePath = path.resolve(`${dir}${url.pathname}`);
@@ -148,7 +148,6 @@ async function runGreenItForURL(reportName, greenItPlugInPage, resultPath) {
     fs.writeFile(dir+'/ecoIndex.html', html, errorLog);
     fs.writeFile(dir+'/ecoIndex.svg', svg, errorLog);
     fs.writeFile(dir+'/ecoIndex.json', JSON.stringify(measure), errorLog);
-    
 }
 
 function createBadge(measure) {
