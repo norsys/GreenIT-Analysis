@@ -52,7 +52,7 @@ export async function launchGreenITAnalysis(scenario, browser, task) {
     }
 
     task.output = 'Analysing : '+endpoint.name;
-    await page.goto(endpoint.url, {waitUntil: 'networkidle2'});
+    await page.goto(endpoint.url, {waitUntil: 'load'});
 
     if(isFirstPage) {
         greenItPlugInPage = await getGreenItPanel(browser);
