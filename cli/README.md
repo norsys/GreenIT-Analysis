@@ -102,7 +102,7 @@ In the `cli` directory : `npm install`
 In the `cli` directory : `npm link`  
 Then use the same command line inside the VSCode Debug Terminal for example.
 
-### choices
+### Choices
 
 #### Why not to use Chromium
 
