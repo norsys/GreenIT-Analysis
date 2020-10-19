@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>GreenIT Analysis of {{endpoint}}</title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="../commonStatic/report.min.css" rel="stylesheet" type="text/css" media="all" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+<body>
+<div id="wrapper">
+	<div id="header" class="container">
+		<div id="logo">
+			<h1>GreenIT Analysis</h1>
+		</div>
+		<div id="eco_index">
+			<span><img src="./ecoIndex.svg"/></span>
+		</div>
+	</div>
+	<div id="featured">
+		<div class="container">
+			<div class="title">
+				<h2><a href="{{endpoint}}">{{reportName}}</a></h2>
+				<span class="byline">Données analysées le {{day}}/{{month}}/{{year}}</span> 
+			</div>
+			<div id="three-column">
+				<div class="boxA">
+					<div class="box"> 
+						<ul>
+							<li><span>EcoIndex : {{ecoIndex}}</span></li>
+							<li><span>Eau (cl) : {{waterConsumption}}</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="boxB">
+					<div class="box"> 
+						<ul>
+							<li><span>GES (gCO2e) : {{greenhouseGasesEmission}}</span></li>
+							<li><span>Nombre de requêtes : {{nbRequest}}</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="boxC">
+					<div class="box"> 
+						<ul>
+							<li><span>Taille de la page (Ko) : {{responsesSizeRounded}} ({{responsesSizeUncompressRounded}})</span></li>
+							<li><span>Taille du DOM : {{domSize}}</span></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="extra" class="container">
+		<div class="title">
+			<h2>Bonnes Pratiques</Pre></h2>
+
+			{{#analysysDetailsAsList}}
+
+			<div id="box-{{name}}" class="box noDetail" style="float: left; margin-right: 2%;margin-bottom: 20px;min-height: 250px;"> 
+				<div class="title" > 
+					<span class="compliance level-{{value.complianceLevel}}"></span>
+					<p>
+						{{#titleFor}}{{name}}{{/titleFor}}
+					</p>
+					<p>
+						{{value.comment}}
+					</p>
+					<span class="fa fa-info-circle displayDetail" style="cursor: pointer;" data-id="{{name}}" ></span>
+				</div>
+
+				<div class="detail"  style="width: 65%;text-align: left;float: right;">
+					<h3>Explications : </h3>
+					<p>
+						{{#explainationFor}}{{name}}{{/explainationFor}}
+					</p>
+					
+					<h3>Détail : </h3>
+					<p>
+						{{{value.detailComment}}}
+					</p>
+				</div>
+			</div>
+
+			
+			{{/analysysDetailsAsList}}
+		</div>
+	</div>
+</div>
+<div id="copyright" class="container">
+	<p>Generated using GreenIT-Analysis | avalaible on <a href="https://github.com/cnumr/GreenIT-Analysis" rel="nofollow">Github</a>.</p>
+</div>
+<script type="text/javascript" src="../commonStatic/report.min.js"></script>
+</body>
+</html>

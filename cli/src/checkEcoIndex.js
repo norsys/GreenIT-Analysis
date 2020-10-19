@@ -1,21 +1,12 @@
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-const os = require('os');
-const fse = require('fs-extra');
-const path = require('path');
-const { makeBadge } = require('badge-maker');
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+import os from 'os';
+import fse from 'fs-extra';
+import path from 'path';
+import {findLocalPath, createReport} from './createReport';
 
 export async function openBrowser(chromePath) {
-
-  let fullPathName = new URL(import.meta.url).pathname;
-  if (os.platform().indexOf("win32")!=-1) {
-    // delete first '/' in windows file system
-     fullPathName = fullPathName.substr(1, fullPathName.length)
-  }
-  const extensionPath = path.resolve(
-    fullPathName.substr(fullPathName.indexOf('/')),
-    '../../crx/'
-  );
+  const extensionPath = findLocalPath('../../crx/');
 
   return await puppeteer.launch({
       executablePath: chromePath,
@@ -58,7 +49,7 @@ export async function launchGreenITAnalysis(scenario, browser, task) {
         greenItPlugInPage = await getGreenItPanel(browser);
         isFirstPage = false;
     }
-    await runGreenItForURL(endpoint.name, greenItPlugInPage, scenario.resultPath);
+    await runGreenItForURL(endpoint, greenItPlugInPage, scenario.resultPath);
     task.output = 'End Analyse';
   }
 }
@@ -117,14 +108,7 @@ async function getGreenItPanel(browser) {
   return await extensionPanelTarget.page();
 }
 
-async function runGreenItForURL(reportName, greenItPlugInPage, resultPath) {
-    var dir = `${resultPath}/${reportName}`;
-    greenItPlugInPage.on('response', async (response) => {
-        const url = new URL(response.url());
-        let filePath = path.resolve(`${dir}${url.pathname}`);
-        await fse.outputFile(filePath, await response.buffer());
-      });
-
+async function runGreenItForURL(endpoint, greenItPlugInPage, resultPath) {
     // Getting the first frame and working with that instead provides something usable.
     const greenItPlugInFrame = greenItPlugInPage.frames()[0]
     await greenItPlugInFrame.waitForSelector('body');
@@ -134,48 +118,5 @@ async function runGreenItForURL(reportName, greenItPlugInPage, resultPath) {
         return new Promise(resolve => setTimeout(resolve, 1000)).then(() => measuresAcquisition.getMeasures());
     });
    
-    const html = await greenItPlugInFrame.content();
-    const svg = createBadge(measure);
-
-    let errorLog = (err) => {
-        if (err) {
-          throw new Error(err);
-        }
-    }
-   
-    if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir,{ recursive: true });
-    }
-    fs.writeFile(dir+'/ecoIndex.html', html, errorLog);
-    fs.writeFile(dir+'/ecoIndex.svg', svg, errorLog);
-    fs.writeFile(dir+'/ecoIndex.json', JSON.stringify(measure), errorLog);
-}
-
-function createBadge(measure) {
-  const grade = measure.grade;
-  const color = (function (grade) {
-    switch (grade) {
-      case 'A':
-        return '#349A47';
-      case 'B':
-        return '#51B84B';
-      case 'C':
-        return '#CADB2A';
-      case 'D':
-        return '#F6EB15';
-      case 'E':
-        return '#FECD06';
-      case 'F':
-        return '#F99839';
-      default:
-        return '#ED2124';
-    }
-  })(grade);
-  const format = {
-    label: 'EcoIndex',
-    message: grade,
-    color: color,
-  };
-
-  return makeBadge(format);
+    createReport(resultPath, endpoint.url, endpoint.name, measure)
 }

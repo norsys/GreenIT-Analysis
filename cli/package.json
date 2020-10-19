@@ -10,8 +10,7 @@
     "access": "public"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "rsync -av --progress ../ ./crx --exclude cli --exclude tests --exclude .git --exclude .gitignore"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "greenIT",
@@ -27,6 +26,7 @@
     "fs-extra": "^9.0.1",
     "inquirer": "^7.3.3",
     "listr": "0.14.3",
+    "mustache": "4.0.1",
     "puppeteer": "^5.2.1"
   },
   "files": [
